@@ -33,25 +33,7 @@ class GetThings{
     else { return '$a\_$b'; }
   }
 
-  Widget chatMessages()  {
-    return  StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection("chatrooms")
-          .doc(chatRoomId)
-          .collection("chats").orderBy("ts",descending: true)
-          .snapshots(),
-      builder: (context, snapshot) {
-        return snapshot.hasData ? ListView.builder(
-            padding: EdgeInsets.only(bottom: 70,top: 16),
-            itemCount: snapshot.data?.docs.length,
-            reverse: true,
-            itemBuilder: (context, index) {
-              DocumentSnapshot ds = snapshot.data!.docs[index];
-              return Tiles().chatMessageTile(ds['message'] , myUserName == ds['sendBy']);
-            }) : Center(child: CircularProgressIndicator());
-      },
-    );
-  }
+
 
   Widget chatRoomsLists() {
     return StreamBuilder<QuerySnapshot>(
@@ -105,11 +87,11 @@ class GetThings{
 
 
 
-class SetThings{
-  TextEditingController  messageTextEditting  = TextEditingController();
+class SetThings {
 
 
-  addMessage(bool sendClicked) {
+
+  addMessage(bool sendClicked,messageTextEditting,chatRoomId) {
     if (messageTextEditting.text != "") {
       String message = messageTextEditting.text;
 

@@ -110,7 +110,6 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
 
   @override
   Widget build(BuildContext context) {
-    print('ye h samne vala  $username and ye hu m  ${widget.myUsername} and this is last message ${widget.lastMessage} and ye h hamari id ${widget.chatRoomId}');
     return GestureDetector(
       onTap: () {
         print('name is $username and ${widget.myUsername}');

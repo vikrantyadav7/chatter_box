@@ -1,9 +1,9 @@
-import 'dart:ffi';
-
+import 'package:chatter_box/components/tiles.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/Sharedprefenreces.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
 import 'package:chatter_box/screens/home.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +25,26 @@ class _ChattingState extends State<Chatting> {
       myProfilePic ,
     myUserName,myEmail ;
    String  messageId = '' ;
-
+   TextEditingController  messageTextEditting  = TextEditingController();
+   Widget chatMessages()  {
+     return  StreamBuilder<QuerySnapshot>(
+       stream: FirebaseFirestore.instance
+           .collection("chatrooms")
+           .doc(chatRoomId)
+           .collection("chats").orderBy("ts",descending: true)
+           .snapshots(),
+       builder: (context, snapshot) {
+         return snapshot.hasData ? ListView.builder(
+             padding: EdgeInsets.only(bottom: 70,top: 16),
+             itemCount: snapshot.data?.docs.length,
+             reverse: true,
+             itemBuilder: (context, index) {
+               DocumentSnapshot ds = snapshot.data!.docs[index];
+               return Tiles().chatMessageTile(ds['message'] , myUserName == ds['sendBy']);
+             }) : Center(child: CircularProgressIndicator());
+       },
+     );
+   }
 
 getMyInfoFromPhone()async{
    myName = (await SharedPreferenceHelper().getDisplayName())!;
@@ -58,7 +77,6 @@ getMyInfoFromPhone()async{
   }
   @override
   Widget build(BuildContext context) {
-  print('this samne vala ${widget.name}and is ${widget.chatWithUserName} and ye h chatroomid$chatRoomId');
     return Scaffold(
 
       body: Container(
@@ -90,7 +108,7 @@ getMyInfoFromPhone()async{
                 color: Colors.white,
                 borderRadius: BorderRadius.only(topRight: Radius.circular(30),topLeft: Radius.circular(30),)
                   ),
-                  child: null,
+                  child: chatMessages()
               ),
             ),
             Container(
@@ -110,7 +128,7 @@ getMyInfoFromPhone()async{
                             onChanged: (value){
 
                             },
-                            controller: SetThings().messageTextEditting ,
+                            controller: messageTextEditting ,
                             decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: '  Type a message'
@@ -118,7 +136,8 @@ getMyInfoFromPhone()async{
                           ),),
                         GestureDetector(
                           onTap: () {
-                            SetThings().addMessage(true);
+                            SetThings().addMessage(true,messageTextEditting,chatRoomId);
+                            print(messageTextEditting);
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 7),
