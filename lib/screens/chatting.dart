@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/Sharedprefenreces.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
@@ -88,7 +90,8 @@ getMyInfoFromPhone()async{
                 color: Colors.white,
                 borderRadius: BorderRadius.only(topRight: Radius.circular(30),topLeft: Radius.circular(30),)
                   ),
-                  child: GetThings().chatMessages()),
+                  child: null,
+              ),
             ),
             Container(
               color: Colors.white,
