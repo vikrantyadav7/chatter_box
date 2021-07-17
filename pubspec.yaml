@@ -60,10 +60,7 @@
 #  # "family" key with the font family name, and a "fonts" key with a
 #  # list giving the asset and other descriptors for the font. For
 #  # example:
-#  # fonts:
-#  #   - family: Schyler
-#  #     fonts:
-#  #       - asset: fonts/Schyler-Regular.ttf
+
 #  #       - asset: fonts/Schyler-Italic.ttf
 #  #         style: italic
 #  #   - family: Trajan Pro
@@ -95,6 +92,7 @@ dependencies:
   random_string: ^2.2.0-nullsafety
   flutter_launcher_icons: ^0.9.0
   async_builder: ^1.2.0
+  google_fonts: ^2.1.0
 
 
 
@@ -110,3 +108,5 @@ flutter:
 flutter_icons:
   android: true
   image_path: "images/bg_logo.png"
+
+

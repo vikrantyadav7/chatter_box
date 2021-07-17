@@ -1,5 +1,3 @@
-
-
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
 import 'package:chatter_box/screens/chatting.dart' ;
@@ -44,7 +42,7 @@ class Tiles{
           'users' : [myUserName , username]
         };
         DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap)!;
-        Navigator.push( context,MaterialPageRoute(builder: (context) => Chatting('ahyusagt', 'vikrantyadav190')) );
+        Navigator.push( context,MaterialPageRoute(builder: (context) => Chatting(myUserName!, username)) );
       } ,
       child: Row(
         children: [
@@ -62,7 +60,30 @@ class Tiles{
     );
   }
 
-
+  Widget usersTile(String url , username , context
+      ){
+    return GestureDetector(
+      onTap: (){
+        var chatRoomId = GetThings().getChatRoomIdByUserName(username, myUserName);
+        print('and this is  $chatRoomId');
+        Map<String ,dynamic > chatRoomInfoMap = {
+          'users' : [myUserName , username]
+        };
+        DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap)!;
+        Navigator.push( context,MaterialPageRoute(builder: (context) => Chatting(username, myUserName!)) );
+      },
+      child: Container(padding: EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: Image.network(url)),
+            SizedBox(width: 10,),
+          ],
+        ),
+      ),
+    );
+  }
 
 }
 
@@ -78,14 +99,11 @@ class ChatRoomListTile extends StatefulWidget {
 }
 
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
-  String profilePicUrl = 'https://miro.medium.com/max/875/0*H3jZONKqRuAAeHnG.jpg' , name = '' ;
-
-  get username => widget.chatRoomId.replaceAll(widget.myUsername, "").replaceAll("_", "");
-
+  String profilePicUrl = 'https://miro.medium.com/max/875/0*H3jZONKqRuAAeHnG.jpg' , name = ''  ,username = "";
 
 
   getThisUserInfo() async {
-
+     username = widget.chatRoomId.replaceAll(widget.myUsername, "").replaceAll("_", "");
     QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username);
     print(
         "something bla bla ${querySnapshot.docs[0].id} ${querySnapshot.docs[0]["name"]}  ${querySnapshot.docs[0]["profileURL"]}");
@@ -94,15 +112,9 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
     setState(() {});
   }
 
-
-
-
-
-
   @override
   void initState() {
     getThisUserInfo();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -118,34 +130,41 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
             MaterialPageRoute(
                 builder: (context) => Chatting(username, widget.myUsername)));
       },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Image.network(profilePicUrl,
-
-                height: 40,
-                width: 40,
-              ),
-            ),
-            SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 8),
+            child: Row(
               children: [
-                Text(
-                  name,
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 3),
-                SizedBox(width: 220,
-                    child: Text(widget.lastMessage,overflow: TextOverflow.ellipsis)),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: Image.network(profilePicUrl,
 
+                    height: 40,
+                    width: 40,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 3),
+                    SizedBox(width: 220,
+                        child: Text(widget.lastMessage,overflow: TextOverflow.ellipsis)),
+                  ],
+                )
               ],
-            )
-          ],
-        ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Divider(thickness: 0.5 ,),
+          )
+        ],
       ),
     );
   }

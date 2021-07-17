@@ -1,3 +1,4 @@
+import 'package:chatter_box/components/mainContainer.dart';
 import 'package:chatter_box/components/tiles.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/Sharedprefenreces.dart';
@@ -79,7 +80,7 @@ getMyInfoFromPhone()async{
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: Container(
+      body: Container(padding: EdgeInsets.only(top: 20),
           decoration: BoxDecoration(image: DecorationImage(image: AssetImage('images/chart.jpg'),fit: BoxFit.fill)),
         child: Column(mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -95,7 +96,7 @@ getMyInfoFromPhone()async{
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text(widget.name, overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white,fontSize:30 ),),
+                  children: [Flexible(child: Text(widget.name,style: TextStyle(color: Colors.white,fontSize:30 ),)),
                   IconButton(onPressed: (){}, icon: Icon(Icons.call,color: Colors.white,)),
                     IconButton(onPressed: (){}, icon: Icon(Icons.video_call,color: Colors.white,))
 
@@ -103,13 +104,7 @@ getMyInfoFromPhone()async{
               ),
             ),
             Flexible(
-              child: Container(height: screenHeight(context,dividedBy: 1.4),
-                decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(topRight: Radius.circular(30),topLeft: Radius.circular(30),)
-                  ),
-                  child: chatMessages()
-              ),
+              child: MainContainer(height: screenHeight(context,dividedBy: 1.4), child: chatMessages())
             ),
             Container(
               color: Colors.white,
@@ -125,7 +120,11 @@ getMyInfoFromPhone()async{
                       children: [
                         SizedBox(width: screenWidth(context,dividedBy: 1.3 ),
                           child: TextField(
-                            onChanged: (value){
+                              textInputAction: TextInputAction.go,
+                                  onSubmitted:(value){
+                                    SetThings().addMessage(true,messageTextEditting,chatRoomId);
+                                  },
+                              onChanged: (value){
 
                             },
                             controller: messageTextEditting ,
@@ -137,7 +136,6 @@ getMyInfoFromPhone()async{
                         GestureDetector(
                           onTap: () {
                             SetThings().addMessage(true,messageTextEditting,chatRoomId);
-                            print(messageTextEditting);
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 7),

@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
 bool isSearching = false;
+
 String chatRoomId = '',
     messageId= '',
     myName = '' ,
@@ -24,6 +25,7 @@ class GetThings{
 
     myUserName = (await SharedPreferenceHelper().getUserName())!;
        print('USERNAME MIL GYA $myUserName');
+
   }
 
   getChatRoomIdByUserName(String a ,b){
@@ -37,7 +39,6 @@ class GetThings{
 
   Widget chatRoomsLists() {
     return StreamBuilder<QuerySnapshot>(
-
         stream:  FirebaseFirestore.instance
             .collection('chatrooms').orderBy("lastMessageSendTs", descending: true)
             .where("users", arrayContains:myUserName)
@@ -51,11 +52,9 @@ class GetThings{
 
                 return  ChatRoomListTile(ds['lastMessage'], ds.id,myUserName! );
 
-
               }) : Center(child: CircularProgressIndicator());
         }) ;
   }
-
 
 
 
@@ -74,6 +73,25 @@ class GetThings{
                 DocumentSnapshot ds = snapshot.data!.docs[index];
                 return
                 Tiles().searchListUserTile(ds['profileURL'], ds['name'], ds['email'], ds['username'], context) ;
+
+              }) : Center(child: CircularProgressIndicator());
+        }) ;
+  }
+
+  Widget usersList(){
+    return
+      StreamBuilder<QuerySnapshot>(
+        stream:  FirebaseFirestore.instance
+            .collection('users')
+            .snapshots(),
+        builder: (context, snapshot){
+          return snapshot.hasData ? ListView.builder(
+            scrollDirection: Axis.horizontal,
+              itemCount: snapshot.data?.docs.length,
+              itemBuilder: (context,index){
+                DocumentSnapshot ds = snapshot.data!.docs[index];
+                return
+                Tiles().usersTile(ds['profileURL'], ds['username'], context);
 
               }) : Center(child: CircularProgressIndicator());
         }) ;
