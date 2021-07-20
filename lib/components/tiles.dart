@@ -3,30 +3,43 @@ import 'package:chatter_box/helperServices/gettingThings.dart';
 import 'package:chatter_box/screens/chatting.dart' ;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart';
+
 
 class Tiles{
-  Widget chatMessageTile(String message ,bool sendByMe ){
-    return Row(
-      mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+
+  Widget chatMessageTile(String message ,bool sendByMe,Timestamp time ){
+
+
+    return Column(crossAxisAlignment: sendByMe? CrossAxisAlignment.end :CrossAxisAlignment.start,
       children: [
-        Container( constraints: BoxConstraints( maxWidth: 280),
+        Row(
+          mainAxisAlignment: sendByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
 
+            Container( constraints: BoxConstraints( maxWidth: 280),
+              decoration: BoxDecoration(
+                color:  sendByMe ? Colors.blue : Colors.lightBlueAccent,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  bottomLeft:sendByMe ? Radius.circular(24) : Radius.circular(0),
+                  topRight: Radius.circular(24),
+                  bottomRight: sendByMe ? Radius.circular(0) : Radius.circular(24),
+                ),
 
-          decoration: BoxDecoration(
-            color:  sendByMe ? Colors.blue : Colors.lightBlueAccent,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              bottomLeft:sendByMe ? Radius.circular(24) : Radius.circular(0),
-              topRight: Radius.circular(24),
-              bottomRight: sendByMe ? Radius.circular(0) : Radius.circular(24),
+              ),
+              margin: EdgeInsets.symmetric(horizontal: 6,vertical: 4),
+              padding: EdgeInsets.all(10),
+              child: Text(message,style: TextStyle(color: Colors.white),),
             ),
 
-          ),
-          margin: EdgeInsets.symmetric(horizontal: 16,vertical: 4),
-          padding: EdgeInsets.all(10),
-          child: Text(message,style: TextStyle(color: Colors.white),),
+          ],
         ),
-
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(DateFormat.jm().format(time.toDate()),style: TextStyle(color: Colors.black,fontSize: 8),),
+        ),
       ],
     );
   }
@@ -92,7 +105,9 @@ class Tiles{
 class ChatRoomListTile extends StatefulWidget {
 
   final String lastMessage , chatRoomId, myUsername;
-  ChatRoomListTile(this.lastMessage, this.chatRoomId, this.myUsername,);
+  final Timestamp time ;
+
+  ChatRoomListTile(this.lastMessage, this.chatRoomId, this.myUsername, this.time);
 
   @override
   _ChatRoomListTileState createState() => _ChatRoomListTileState();
@@ -102,29 +117,33 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   String profilePicUrl = 'https://miro.medium.com/max/875/0*H3jZONKqRuAAeHnG.jpg' , name = ''  ,username = "";
 
 
+
   getThisUserInfo() async {
+    print('userinfo called');
      username = widget.chatRoomId.replaceAll(widget.myUsername, "").replaceAll("_", "");
     QuerySnapshot querySnapshot = await DatabaseMethods().getUserInfo(username);
-    print(
-        "something bla bla ${querySnapshot.docs[0].id} ${querySnapshot.docs[0]["name"]}  ${querySnapshot.docs[0]["profileURL"]}");
+    // print("something bla bla ${querySnapshot.docs[0].id} ${querySnapshot.docs[0]["name"]}  ${querySnapshot.docs[0]["profileURL"]}");
     name = "${querySnapshot.docs[0]["name"]}";
     profilePicUrl = "${querySnapshot.docs[0]["profileURL"]}";
     setState(() {});
+
   }
 
   @override
   void initState() {
     getThisUserInfo();
     super.initState();
+
   }
 
 
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+String newTime = DateFormat.jm().format(widget.time.toDate()) ;
+   return GestureDetector(
       onTap: () {
-        print('name is $username and ${widget.myUsername}');
+
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -153,10 +172,12 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                       style: TextStyle(fontSize: 16),
                     ),
                     SizedBox(height: 3),
-                    SizedBox(width: 220,
+                    SizedBox(width: 210,
                         child: Text(widget.lastMessage,overflow: TextOverflow.ellipsis)),
                   ],
-                )
+                ),
+                Text(newTime),
+
               ],
             ),
           ),

@@ -41,7 +41,7 @@ class _ChattingState extends State<Chatting> {
              reverse: true,
              itemBuilder: (context, index) {
                DocumentSnapshot ds = snapshot.data!.docs[index];
-               return Tiles().chatMessageTile(ds['message'] , myUserName == ds['sendBy']);
+               return Tiles().chatMessageTile(ds['message'] , myUserName == ds['sendBy'],ds['ts']);
              }) : Center(child: CircularProgressIndicator());
        },
      );

@@ -50,7 +50,8 @@ class GetThings{
               itemBuilder: (context,index){
                 DocumentSnapshot ds = snapshot.data!.docs[index];
 
-                return  ChatRoomListTile(ds['lastMessage'], ds.id,myUserName! );
+                return
+                ChatRoomListTile(ds['lastMessage'], ds.id, myUserName!,ds['lastMessageSendTs'] );
 
               }) : Center(child: CircularProgressIndicator());
         }) ;
@@ -90,6 +91,7 @@ class GetThings{
               itemCount: snapshot.data?.docs.length,
               itemBuilder: (context,index){
                 DocumentSnapshot ds = snapshot.data!.docs[index];
+
                 return
                 Tiles().usersTile(ds['profileURL'], ds['username'], context);
 
