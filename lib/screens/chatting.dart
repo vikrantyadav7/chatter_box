@@ -3,6 +3,7 @@ import 'package:chatter_box/components/tiles.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/Sharedprefenreces.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
+
 import 'package:chatter_box/screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,15 +12,18 @@ import 'package:flutter/material.dart';
 
 class Chatting extends StatefulWidget {
 
- final String chatWithUserName, name;
-Chatting(this.name, this.chatWithUserName);
+ final String chatWithName, username;
+    int counter ;
+Chatting(this.username, this.chatWithName, this.counter);
 
 
   @override
   _ChattingState createState() => _ChattingState();
+
 }
 
 class _ChattingState extends State<Chatting> {
+  int count = 0 ;
    Stream? messageStream;
   String ? chatRoomId   ;
    String? myName ,
@@ -36,7 +40,7 @@ class _ChattingState extends State<Chatting> {
            .snapshots(),
        builder: (context, snapshot) {
          return snapshot.hasData ? ListView.builder(
-             padding: EdgeInsets.only(bottom: 70,top: 16),
+             padding: EdgeInsets.only(bottom: 10,top: 16),
              itemCount: snapshot.data?.docs.length,
              reverse: true,
              itemBuilder: (context, index) {
@@ -47,12 +51,14 @@ class _ChattingState extends State<Chatting> {
      );
    }
 
+
+
 getMyInfoFromPhone()async{
    myName = (await SharedPreferenceHelper().getDisplayName())!;
    myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
    myEmail = (await SharedPreferenceHelper().getUserEmail())!;
    myUserName = (await SharedPreferenceHelper().getUserName())!;
-   chatRoomId =  GetThings().getChatRoomIdByUserName(widget.name, widget.chatWithUserName) ;
+   chatRoomId =  GetThings().getChatRoomIdByUserName(myUserName!, widget.username) ;
 
 }
 
@@ -68,6 +74,7 @@ getMyInfoFromPhone()async{
   }
     else{Center(child: CircularProgressIndicator());}
   }
+
 
  @override
   void initState() {
@@ -87,8 +94,10 @@ getMyInfoFromPhone()async{
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 9),
               child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [TextButton(onPressed: (){Navigator.pop(context,HomeScreen.id);}, child: Text('back',style: TextStyle(color: Colors.white,fontSize:20 ),)),
-                TextButton(onPressed: (){}, child: Text('search',style: TextStyle(color: Colors.white,fontSize:20 ),))
+                children: [TextButton(onPressed: (){Navigator.pop(context,HomeScreen.id);}, child: Text('Back',style: TextStyle(color: Colors.white,fontSize:20 ),)),
+                // TextButton(onPressed: (){
+                //
+                // }, child: Text('search',style: TextStyle(color: Colors.white,fontSize:20 ),))
 
               ],),
             ),
@@ -96,9 +105,9 @@ getMyInfoFromPhone()async{
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Flexible(child: Text(widget.name,style: TextStyle(color: Colors.white,fontSize:30 ),)),
-                  IconButton(onPressed: (){}, icon: Icon(Icons.call,color: Colors.white,)),
-                    IconButton(onPressed: (){}, icon: Icon(Icons.video_call,color: Colors.white,))
+                  children: [Flexible(child: Text(widget.chatWithName,style: TextStyle(color: Colors.white,fontSize:30 ),)),
+                  // IconButton(onPressed: (){}, icon: Icon(Icons.call,color: Colors.white,)),
+                  //   IconButton(onPressed: (){}, icon: Icon(Icons.video_call,color: Colors.white,))
 
                   ],),
               ),
@@ -122,7 +131,11 @@ getMyInfoFromPhone()async{
                           child: TextField(
                               textInputAction: TextInputAction.go,
                                   onSubmitted:(value){
-                                    SetThings().addMessage(true,messageTextEditting,chatRoomId);
+                                  count++;
+                                  widget.counter++;
+                                     count = widget.counter;
+
+                                    SetThings().addMessage(true,messageTextEditting,chatRoomId ,count);
                                   },
                               onChanged: (value){
 
@@ -135,7 +148,11 @@ getMyInfoFromPhone()async{
                           ),),
                         GestureDetector(
                           onTap: () {
-                            SetThings().addMessage(true,messageTextEditting,chatRoomId);
+
+                            count++;
+                            widget.counter++;
+                            count = widget.counter;
+                            SetThings().addMessage(true,messageTextEditting,chatRoomId,count );
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 7),

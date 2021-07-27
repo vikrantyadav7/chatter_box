@@ -1,4 +1,6 @@
 
+import 'package:chatter_box/helperServices/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferenceHelper {
@@ -7,6 +9,25 @@ class SharedPreferenceHelper {
   static String displayNameKey = "USERDISPLAYNAME";
   static String userEmailKey = "USEREMAILKEY";
   static String userProfilePicKey = "USERPROFILEKEY";
+  static String userProfile = "USERPROFILEKEY" ;
+  static String name = "" , profilePicUrl = "";
+  storeUsersInfo()async{
+    print('STORE CALLED');
+    QuerySnapshot querySnapshot = await DatabaseMethods().getUsers();
+    var length = querySnapshot.docs.length ;
+    int i = 0 ;
+    while (  i < length ) {
+      name = "${querySnapshot.docs[i]["name"]}";
+      profilePicUrl = "${querySnapshot.docs[i]["profileURL"]}";
+      String userName = "${querySnapshot.docs[i]['username']}";
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      sharedPreferences.setString("name$i" , name);
+      sharedPreferences.setString("profile$i" , profilePicUrl);
+      sharedPreferences.setString("username$i" , userName);
+
+      i++;
+    }
+  }
 
   //save data
   Future<bool> saveUserName(String userName) async {
@@ -59,4 +80,11 @@ class SharedPreferenceHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(userProfilePicKey);
   }
+
+  Future<String?> getProfileUrl() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(userProfile);
+  }
+
+
 }

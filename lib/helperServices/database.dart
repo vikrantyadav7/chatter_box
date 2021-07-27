@@ -1,7 +1,12 @@
+
 import 'dart:ui';
 import 'package:chatter_box/helperServices/sharedprefenreces.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/cupertino.dart';
+
+
+
 Size screenSize(BuildContext context) {
   return MediaQuery.of(context).size;
 }
@@ -71,6 +76,26 @@ class DatabaseMethods{
         .where("username", isEqualTo: username)
         .get();
   }
+
+
+  Future<QuerySnapshot> getUsers() async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .get();
+  }
+
+   updateName(String uid ,updateNameMap )async{
+   return await  FirebaseFirestore.instance.collection('users').doc(uid).update(updateNameMap);
+
+   }
+
+  updateProfilePic(String uid ,updateProfilePicMap )async{
+   return await FirebaseFirestore.instance.collection('users').doc(uid).update(updateProfilePicMap);
+
+  }
+
+
 }
+
 
 

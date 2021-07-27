@@ -1,9 +1,15 @@
+
 import 'package:chatter_box/components/rounded_button.dart';
-import 'package:chatter_box/constants.dart';
-import 'package:chatter_box/screens/chat_screen.dart';
+
+import 'package:chatter_box/helperServices/auth.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter/widgets.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+
+
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = 'Registration_screen';
@@ -13,14 +19,21 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  // final _auth = FirebaseAuth.instance;
-  late String email;
-  late String password;
+  final auth = FirebaseAuth.instance;
+  String? phoneNumber;
+
+  TextEditingController _pwdController = TextEditingController();
+  TextEditingController _numberController = TextEditingController();
+  bool numberError = false;
+
+  bool codeSent = false;
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
+      body:  Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -30,55 +43,53 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               tag: 'logo',
               child: Container(
                 height: 200.0,
-                child: Image.asset('images/logo.png'),
+                child: Image.asset('images/bg_logo.png'),
               ),
             ),
             SizedBox(
               height: 48.0,
             ),
-            TextField(
-                keyboardType: TextInputType.emailAddress,
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  email= value ;
-                },
-                decoration: kTextFieldDecoration.copyWith(hintText: "Enter your username")
-            ),
+
+            textItem(numberError ? "Invalid number" : "Phone Number",
+                _numberController, false, numberError,context,TextInputType.numberWithOptions()),
             SizedBox(
-              height: 8.0,
-            ),
-            TextField(
-                textAlign: TextAlign.center,
-                obscureText: true,
-                onChanged: (value) {
-                  password = value ;
-                },
-                decoration:kTextFieldDecoration.copyWith(hintText: "Enter your password")
+              height: 18.0,
             ),
             SizedBox(
               height: 24.0,
             ),
-            RoundButton(title: 'Register',
+            RoundButton(title: 'Get OTP ',
                 colour: Colors.blueAccent,
-                onPressed: ()async {
-                  print(email);
-                  print(password);
-                  try {
-                    // final newUser = await _auth.createUserWithEmailAndPassword(
-                    //     email: email, password: password);
+                onPressed:
+                () async {
+                  print(_pwdController.text);
+                  print("+91" + _numberController.text);
+                  if (_numberController.text != "" &&
+                      _numberController.text.length == 10) {
+                    setState(() {
+                      numberError = false;
+                      codeSent = true;
+                    });
 
-                      Navigator.pushNamed(context, Chat.id);
+                   await AuthMethods().signInWithNumber(
+                        "+91" + _numberController.text, context);
 
                   }
-                  catch (e) {
-                    print(e);
+                  else {
+                    setState(() {
+                      numberError = true;
+                    });
                   }
-                }
-            )
+
+                    },
+                    )
 
           ],
         ),
       ),
     );
   }
+
+
+
 }

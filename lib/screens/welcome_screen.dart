@@ -1,4 +1,6 @@
 import 'package:chatter_box/helperServices/auth.dart';
+// import 'package:chatter_box/helperServices/profileUpdate.dart';
+import 'package:chatter_box/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:chatter_box/components/rounded_button.dart';
 
@@ -41,11 +43,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             SizedBox(
               height: 20.0,
             ),
-            //
-            // RoundButton(title: 'Login',colour: Colors.lightBlueAccent,
-            //     onPressed:(){
-            //       AuthMethods().signOut().then((value) => Navigator.pushNamed(context, Chat.id));}
-            // ),
+
+            RoundButton(title: 'Login with phoneNumber',colour: Colors.lightBlueAccent,
+                onPressed:(){
+                  Navigator.of(context).pop();
+             Navigator.pushNamed(context, RegistrationScreen.id);}
+            ),
             RoundButton(title: 'SignIn with google',colour: Colors.blue,
                 onPressed:(){
                   AuthMethods().signInWithGoogle(context);}

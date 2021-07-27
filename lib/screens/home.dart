@@ -3,16 +3,20 @@ import 'package:chatter_box/components/mainContainer.dart';
 import 'package:chatter_box/helperServices/auth.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
+import 'package:chatter_box/helperServices/profileUpdate.dart';
+import 'package:chatter_box/main.dart';
 import 'package:chatter_box/screens/welcome_screen.dart';
-
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
 
 class HomeScreen extends StatefulWidget {
   static const String id = 'Home';
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -22,6 +26,45 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
   @override
   void initState() {
     super.initState();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? androidNotification = message.notification?.android;
+    if(notification != null && androidNotification != null) {
+      flutterLocalNotificationsPlugin.show(
+          notification.hashCode, notification.title, notification.body,
+        NotificationDetails(
+           android: AndroidNotificationDetails(
+               channel.id,
+               channel.name,
+               channel.description,
+             color: Colors.blue,
+             playSound: true,
+             icon: "@mipmap/ic_launcher",
+           )
+        )
+      );
+    }
+    }
+    );
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('a new on message event was published ');
+      RemoteNotification notification = message.notification!;
+      AndroidNotification? androidNotification = message.notification?.android;
+    showDialog(context: context, builder: (_){
+      return AlertDialog(
+        title: Text(notification.title!),
+        content: SingleChildScrollView(
+          child: Column(children: [
+            Text(notification.body!),
+
+          ],),
+        ),
+      );
+    });
+
+    });
+
     GetThings().getMyInfoFromPhone().whenComplete(() {
       setState(() {});
     });
@@ -32,6 +75,19 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
   TextEditingController searchUsernameEditingController = TextEditingController();
   bool search = false;
 
+  void showNotification(){
+    flutterLocalNotificationsPlugin.show(
+        0, "testing", "how u doing",NotificationDetails(
+        android: AndroidNotificationDetails(
+          channel.id,
+          channel.name,
+          channel.description,
+          color: Colors.blue,
+          playSound: true,
+          icon: "@mipmap/ic_launcher",
+        )
+    ) );
+  }
 
   onSearchButtonClick()async{
     isSearching = true;
@@ -56,10 +112,24 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
    print('SCREEEN LOADEED HAS BEEN CALEED ');
    }
 
+   void choiceAction(String choice ){
+    if(choice == "Logout"){
+      setState(() {
+        AuthMethods().signOut().then((value) {
+          Navigator.pop(context);
+          Navigator.pushNamed(context, WelcomeScreen.id);});
+      });
+    }
+    else {
+      Navigator.pushNamed(context, SignUpPage.id);
+    }
+   }
 
-  @override
+
+
+@override
   Widget build(BuildContext context) {
-    return Scaffold(
+  return Scaffold(
 
 
      body:  Container(
@@ -73,12 +143,26 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Chatterbox',style: TextStyle(color: Colors.white,fontSize:33,fontWeight: FontWeight.w900 ,fontFamily: 'Qahiri'),),
-                IconButton(onPressed: (){ AuthMethods().signOut().then((value) {
+                Text('Chatterbox',style: TextStyle(color: Colors.white,fontSize:33,fontWeight: FontWeight.w900 ),),
 
-                             Navigator.pushNamed(context, WelcomeScreen.id);});
-                           },
-                    icon: Icon(Icons.exit_to_app,color: Colors.white,))
+                PopupMenuButton<String>(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.0))
+                  ),
+                  elevation: 2,
+                  icon: Icon(Icons.more_vert_outlined,color: Colors.white,),
+                  onSelected: (result) => choiceAction(result)  ,
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: "Profile",
+                      child: Text('Profile'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: "Logout",
+                      child: Text('Logout'),
+                    ),
+                  ],
+                )
                          ],),
           ),
           search ? Padding(
@@ -155,11 +239,13 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
               ],
             ),
           ),
-          isSearching ? MainContainer(height: screenHeight(context,dividedBy: 1.3), child: GetThings().searchUserLists(searchUsernameEditingController)) :
+          isSearching ? MainContainer(height: screenHeight(context,dividedBy: 1.3),
+              child: GetThings().searchUserLists(searchUsernameEditingController)) :
 
           Flexible(
-            child: MainContainer(height:screenHeight(context,dividedBy: 1.3) ,child:  GetThings().chatRoomsLists(),)
-          ),
+            child: MainContainer(height:screenHeight(context,dividedBy: 1.3) ,
+                child: GetThings().chatRoomsLists() ))
+
 
 
 

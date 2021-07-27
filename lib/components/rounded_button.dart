@@ -27,3 +27,42 @@ class RoundButton extends StatelessWidget {
     );
   }
 }
+
+Widget textItem(
+    String labelText, TextEditingController controller, bool obscureText ,bool invalid , context, TextInputType type) {
+  return Container(
+    width: MediaQuery.of(context).size.width - 70,
+    height: 55,
+    child: TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: type,
+      style: TextStyle(
+        fontSize: 17,
+        color: invalid ? Colors.red : Colors.blueGrey,
+      ),
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(
+          fontSize: 17,
+          color: invalid ? Colors.red : Colors.blueGrey,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            width: 1.5,
+            color: invalid ? Colors.red : Colors.lightBlueAccent,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            width: 1,
+            color: invalid ? Colors.red : Colors.blue,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
