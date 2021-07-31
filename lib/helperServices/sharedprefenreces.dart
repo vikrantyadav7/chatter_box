@@ -10,7 +10,10 @@ class SharedPreferenceHelper {
   static String userEmailKey = "USEREMAILKEY";
   static String userProfilePicKey = "USERPROFILEKEY";
   static String userProfile = "USERPROFILEKEY" ;
+  static String counterKey = "COUNTERKEY" ;
+
   static String name = "" , profilePicUrl = "";
+
   storeUsersInfo()async{
     print('STORE CALLED');
     QuerySnapshot querySnapshot = await DatabaseMethods().getUsers();
@@ -30,6 +33,11 @@ class SharedPreferenceHelper {
   }
 
   //save data
+  Future<bool> saveCounter(int counterNumber) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setInt(counterKey, counterNumber);
+  }
+
   Future<bool> saveUserName(String userName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(userNameKey, userName);
@@ -86,5 +94,9 @@ class SharedPreferenceHelper {
     return prefs.getString(userProfile);
   }
 
+  Future<int?> getCounterNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(counterKey);
+  }
 
 }

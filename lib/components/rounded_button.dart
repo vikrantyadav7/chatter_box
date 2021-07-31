@@ -29,7 +29,7 @@ class RoundButton extends StatelessWidget {
 }
 
 Widget textItem(
-    String labelText, TextEditingController controller, bool obscureText ,bool invalid , context, TextInputType type) {
+    String labelText, TextEditingController controller, bool obscureText ,bool invalid , context, TextInputType type ,) {
   return Container(
     width: MediaQuery.of(context).size.width - 70,
     height: 55,

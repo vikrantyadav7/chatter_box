@@ -138,7 +138,7 @@ bool invalid = false;
         codeSent: (String verificationId, [ int? forceResendingToken  ]){
           final snackBar3 = SnackBar(elevation: 2,
               backgroundColor: Colors.blue,
-              content: (Text('verifying OTP  from 2 ...',style: TextStyle(color: Colors.white),)));
+              content: (Text('verifying OTP ',style: TextStyle(color: Colors.white),)));
           ScaffoldMessenger.of(context).showSnackBar(snackBar3);
 
           showDialog(context: context,barrierDismissible: false, builder: (context){

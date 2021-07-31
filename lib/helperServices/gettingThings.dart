@@ -1,13 +1,13 @@
 import 'package:chatter_box/components/rounded_button.dart';
 import 'package:chatter_box/components/tiles.dart';
 import 'package:chatter_box/helperServices/database.dart';
+import 'package:chatter_box/helperServices/encryptionDecryption.dart';
 import 'package:chatter_box/helperServices/sharedprefenreces.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
-// import 'package:string_encryption/string_encryption.dart';
-
+import 'package:encrypt/encrypt.dart' as encrypt ;
 bool isSearching = false;
 
 String chatRoomId = '',
@@ -26,7 +26,6 @@ class GetThings{
     myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
     myEmail = (await SharedPreferenceHelper().getUserEmail())!;
     myUserName = (await SharedPreferenceHelper().getUserName())!;
-
 
   }
 
@@ -53,7 +52,7 @@ class GetThings{
                 DocumentSnapshot ds = snapshot.data!.docs[index];
 
                 return
-                ChatRoomListTile(ds['lastMessage'], ds.id, myUserName!,ds['lastMessageSendTs'] ,ds["readStatus"], ds["lastMessageSendBy"],ds["count"]);
+                ChatRoomListTile(ds['lastMessage'], ds.id, myUserName!,ds['lastMessageSendTs'] ,ds["readStatus"], ds["lastMessageSendBy"],ds["count"], ds["show"],ds["isImage"]);
 
               }) : Center(child: CircularProgressIndicator());
         }) ;
@@ -122,45 +121,42 @@ class SetThings {
 
 
 
-
-  addMessage(bool sendClicked,messageTextEditting,chatRoomId ,int count) async{
-
-    if (messageTextEditting.text != "") {
+String message = "";
+  addMessage(bool sendClicked,messageTextEditting,chatRoomId ,int count,bool isImage) async{
 
 
-      String message = messageTextEditting.text;
+    isImage ? message = messageTextEditting: message = messageTextEditting.text   ;
+
 
       var lastMessageTs = DateTime.now();
 
-     // print(number);
+var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
 
-
-
-
-      Map<String, dynamic> messageInfoMap = {
-        "message": message,
-        "sendBy": myUserName,
-        "ts": lastMessageTs,
-        "imgUrl": myProfilePic
-      };
-
-      //messageId
+//messageId
       if (messageId == "") {
         messageId = randomAlphaNumeric(12);
       }
+      var aes = MyEncryptionDecryption.encryptAES(message);
+      Map<String, dynamic> messageInfoMap = {
+        "message": aes,
+        "sendBy": myUserName,
+        "ts": lastMessageTs,
+        "imgUrl": pic,
+        "isImage":isImage
+      };
 
 
       DatabaseMethods()
           .addMessage(chatRoomId, messageId, messageInfoMap)
           .then((value) {
-
-
         Map<String, dynamic> lastMessageInfoMap = {
-          "lastMessage": message,
+          "lastMessage": aes,
           "lastMessageSendTs": lastMessageTs,
           "lastMessageSendBy": myUserName,
           "readStatus" : false ,
           "count" : count,
+          "show" : true,
+          "isImage": isImage
         };
 
         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
@@ -175,70 +171,7 @@ class SetThings {
     }
   }
 
-  TextEditingController _nameController = TextEditingController();
-  bool invalid = false;
-
-   updateName(String id ,context ){
-    showDialog(context: context,barrierDismissible: false, builder: (context)
-    {
-      return AlertDialog(
-        title: Center(child: Text("Enter your name")),
-        content: textItem("Name",
-            _nameController, false, invalid, context, TextInputType.text),
-        actions: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextButton(
-                  onPressed: () async {
-                    if(_nameController.text != ""){
-                      invalid = false;
-                      Map<String,dynamic>updateNameMap = {'name': _nameController.text,};
-                     await DatabaseMethods().updateName(id, updateNameMap);
-                      await SharedPreferenceHelper().saveDisplayName(_nameController.text);
-                          Navigator.pop(context,"call getKey");
-
-                    }
-                    else{
-                      invalid  = true;}
-                  },
-                  child: Center(
-                    child: Container(width: 80, height: 40,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-                          color: Colors.blue
-                      ),
-                      child: Center(child: Text("ok", style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),)),),
-                  )),
-              TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context,"call getKey");
-
-                    _nameController.text = "";
-                    invalid  = false ;
-
-                  },
-                  child: Center(
-                    child: Container(width: 80, height: 40,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-                          color: Colors.blue
-                      ),
-                      child: Center(child: Text("cancel", style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),)),),
-                  ))
-            ],
-          ),
-
-        ],
-
-      );
-
-    });
-  }
 
 
 
-}
+
