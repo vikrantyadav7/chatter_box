@@ -49,6 +49,11 @@ func setupRouter(router *mux.Router) {
 		Methods("GET").
 		Path("/").
 		HandlerFunc(postFunction)
+
+	router.
+		Methods("POST").
+		Path("/register").
+		HandlerFunc(models.CreateUser)
 }
 
 func main() {

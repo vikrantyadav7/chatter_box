@@ -181,8 +181,8 @@ type GoogleOAuth2ProfileInfo struct {
 
 // --- users ---
 
-// MeetMeUser represents a user entity in Bipp, between HTTP and DB layer
-type MeetMeUser struct {
+// ChatterBoxUser represents a user entity in Bipp, between HTTP and DB layer
+type ChatterBoxUser struct {
 	ID           string                 `json:"id,omitempty"`
 	Password     string                 `json:"-"`
 	Email        string                 `json:"email,omitempty"`
@@ -199,8 +199,8 @@ type MeetMeUser struct {
 	LastSeenFrom string                 `json:"last_seen_from,omitempty"`
 }
 
-// MeetMeUserLite represents a lite version of the user entity in Bipp, between HTTP and DB layer
-type MeetMeUserLite struct {
+// ChatterBoxUserLite represents a lite version of the user entity in Bipp, between HTTP and DB layer
+type ChatterBoxUserLite struct {
 	ID          string `json:"id,omitempty"`
 	Email       string `json:"email,omitempty"`
 	DisplayName string `json:"display_name,omitempty"`

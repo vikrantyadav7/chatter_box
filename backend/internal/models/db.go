@@ -5,7 +5,6 @@ package models
 import (
 	"context"
 	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -44,6 +43,8 @@ func NewDatabaseClient(ctx context.Context, connString string) (client *DB, err 
 	client = &DB{
 		Conn: conn,
 	}
+
+	conn.AutoMigrate(&User{})
 
 	dbInstance.Conn = conn
 

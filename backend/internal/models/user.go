@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -10,7 +11,7 @@ import (
 // User defines a user record in persistent store
 type User struct {
 	ID          string
-	Email       string
+	Email       string `gorm:"unique"`
 	Password    string
 	DisplayName string
 	CreatedAt   time.Time
@@ -18,8 +19,8 @@ type User struct {
 }
 
 // CreateUser creates a user record in the peristent store of Bipp
-func (client *DB) CreateUser(tenantID, requestorID string, in *MeetMeUser) (out *MeetMeUser, err error) {
-
+func (client *DB) CreateUser(requestorID string, in *ChatterBoxUser) (out *ChatterBoxUser, err error) {
+	fmt.Print("create user is called")
 	if in.Email == "" {
 		err = errors.New("email is required to create an user")
 		return

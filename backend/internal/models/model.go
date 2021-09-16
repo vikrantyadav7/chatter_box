@@ -23,14 +23,14 @@ func (e DBError) Status() int {
 type Model interface {
 
 	// users
-	CreateUser(tenantID, requestorID string, in *MeetMeUser) (out *MeetMeUser, err error)
-	ReadUser(tenantID, requestorID string, query url.Values) (out []*MeetMeUser, err error)
-	ReadUsersLite(tenantID, requestorID string) (out []*MeetMeUserLite, err error)
-	ReadUserByID(tenantID, requestorID, userID string) (out *MeetMeUser, err error)
-	ReadUserByUsername(tenantID, requestorID, username string) (out *MeetMeUser, err error)
+	CreateUser(tenantID, requestorID string, in *ChatterBoxUser) (out *ChatterBoxUser, err error)
+	ReadUser(tenantID, requestorID string, query url.Values) (out []*ChatterBoxUser, err error)
+	ReadUsersLite(tenantID, requestorID string) (out []*ChatterBoxUserLite, err error)
+	ReadUserByID(tenantID, requestorID, userID string) (out *ChatterBoxUser, err error)
+	ReadUserByUsername(tenantID, requestorID, username string) (out *ChatterBoxUser, err error)
 	ReadUserAttributes(userID string) (ua *UserAttrib, err error)
 	GetUserEmailByID(userID string) (userEmail string, err error)
-	UpdateUser(tenantID, requestorID string, in *MeetMeUser) (out *MeetMeUser, err error)
+	UpdateUser(tenantID, requestorID string, in *ChatterBoxUser) (out *ChatterBoxUser, err error)
 	DeleteUser(tenantID, requestorID, userID string) (err error)
 	ReadUserTenants(userID string) (out []*BippTenant, err error)
 	ReadUserGroups(tenantID, requestorID, userID string) (out []*BippGroup, err error)
@@ -42,8 +42,8 @@ type Model interface {
 	AddUserToTenantByEmail(tenantID, userEmail string, permissions []string) (err error)
 	IsUserByEmailExists(email string) (exists bool)
 	IsUserActive(userID string) bool
-	GetUsersFromString(tenantID, requestorID, in string) (out []*MeetMeUser)
-	GetUsersFromStringByEmail(tenantID, in string) (out []*MeetMeUser)
+	GetUsersFromString(tenantID, requestorID, in string) (out []*ChatterBoxUser)
+	GetUsersFromStringByEmail(tenantID, in string) (out []*ChatterBoxUser)
 	RemoveUserFromTenant(tenantID, requestorID, userID string) (err error)
 	TransferOwnershipFromUser(tenantID, requestorID, srcUserID, tgtUserID string) (err error)
 	ReadUserLastLogin(tenantID, requestorID, userID string) (out *LastLoginInfo, err error)
