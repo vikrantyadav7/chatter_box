@@ -1,4 +1,4 @@
-module chatterbox.com/v1
+module chatterbox.com/v
 
 go 1.16
 

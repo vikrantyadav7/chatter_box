@@ -188,6 +188,7 @@ type ChatterBoxUser struct {
 	Email        string                 `json:"email,omitempty"`
 	Username     string                 `json:"username,omitempty"`
 	DisplayName  string                 `json:"display_name"`
+	PhoneNumber  string                 `json:"phone_number"`
 	TenantID     string                 `json:"org_id,omitempty"`
 	Status       string                 `json:"status,omitempty"`
 	Permissions  []string               `json:"permissions"`

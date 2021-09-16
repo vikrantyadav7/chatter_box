@@ -1,16 +1,18 @@
 package main
 
 import (
-	"chatterbox.com/v1/database"
-	"chatterbox.com/v1/internal/http/middleware"
-	"chatterbox.com/v1/internal/models"
 	"context"
 	"fmt"
-	"github.com/urfave/negroni"
-	"google.golang.org/api/oauth2/v2"
-	"log"
+
 	"net/http"
 	"time"
+
+	"chatterbox.com/v/database"
+	"chatterbox.com/v/internal/http/api"
+	"chatterbox.com/v/internal/http/middleware"
+	"chatterbox.com/v/internal/models"
+	"github.com/urfave/negroni"
+	"google.golang.org/api/oauth2/v2"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -27,33 +29,6 @@ type DbData struct {
 	ID   int       `json:"id"`
 	Date time.Time `json:"date"`
 	Name string    `json:"name"`
-}
-
-func postFunction(w http.ResponseWriter, r *http.Request) {
-	// database, err := db.CreateDatabase()
-	// if err != nil {
-	// 	log.Fatal("Database connection failed")
-	// }
-
-	// _, err = database.Exec("INSERT INTO `test` (name) VALUES ('myname')")
-	// if err != nil {
-	// 	log.Fatal("Database INSERT failed")
-	// }
-
-	log.Println("You called a thing!", &r)
-	log.Println("You called a thing!", r)
-}
-
-func setupRouter(router *mux.Router) {
-	router.
-		Methods("GET").
-		Path("/").
-		HandlerFunc(postFunction)
-
-	router.
-		Methods("POST").
-		Path("/register").
-		HandlerFunc(models.CreateUser)
 }
 
 func main() {
@@ -86,7 +61,8 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 
-	setupRouter(router)
+	// setupRouter(router, db)
+	api.InitRouter(router, db)
 
 	n := negroni.New()
 	n.Use(&middleware.Logger{})

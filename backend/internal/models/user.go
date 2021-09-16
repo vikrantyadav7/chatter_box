@@ -12,14 +12,13 @@ import (
 type User struct {
 	ID          string
 	Email       string `gorm:"unique"`
-	Password    string
-	DisplayName string
+	PhoneNumber string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
 
 // CreateUser creates a user record in the peristent store of Bipp
-func (client *DB) CreateUser(requestorID string, in *ChatterBoxUser) (out *ChatterBoxUser, err error) {
+func (client *DB) CreateUser(in *ChatterBoxUser) (out *ChatterBoxUser, err error) {
 	fmt.Print("create user is called")
 	if in.Email == "" {
 		err = errors.New("email is required to create an user")
