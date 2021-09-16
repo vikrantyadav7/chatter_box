@@ -57,7 +57,7 @@ func main() {
 			ServerName: "localhost:3306",
 			User:       "root",
 			Password:   "12345678",
-			DB:         "meetme",
+			DB:         "chatterbox",
 		}
 
 	dbConStr := database.GetConnectionString(config)
