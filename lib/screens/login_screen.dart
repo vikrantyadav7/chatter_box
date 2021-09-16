@@ -5,12 +5,10 @@ import 'package:chatter_box/helperServices/sharedprefenreces.dart';
 import 'package:chatter_box/screens/home.dart';
 import 'package:firebase_storage/firebase_storage.dart'; // For File Upload To Firestore
 import 'package:path/path.dart' ;
-
 import 'package:flutter/cupertino.dart';
-// import 'package:chatter_box/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+
 
 class LoginScreen extends StatefulWidget {
 

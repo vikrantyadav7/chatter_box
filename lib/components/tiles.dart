@@ -1,23 +1,25 @@
-
-
-
-
-
+import 'dart:ui';
+import 'package:chatter_box/components/imageShow.dart';
 import 'package:chatter_box/helperServices/database.dart';
+import 'package:chatter_box/helperServices/encryptionDecryption.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
+import 'package:chatter_box/helperServices/sharedprefenreces.dart';
 import 'package:chatter_box/screens/chatting.dart' ;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+
+
 
 
 class Tiles{
 
-  Widget chatMessageTile(String message ,bool sendByMe,Timestamp time ){
 
+
+  Widget chatMessageTile(String message ,bool sendByMe,Timestamp time,bool isImage ,context) {
+  String ses = MyEncryptionDecryption.decryptedAES(message);
 
     return Column(crossAxisAlignment: sendByMe? CrossAxisAlignment.end :CrossAxisAlignment.start,
       children: [
@@ -34,11 +36,19 @@ class Tiles{
                   topRight: Radius.circular(24),
                   bottomRight: sendByMe ? Radius.circular(0) : Radius.circular(24),
                 ),
-
               ),
               margin: EdgeInsets.symmetric(horizontal: 6,vertical: 4),
               padding: EdgeInsets.all(10),
-              child: Text(message,style: TextStyle(color: Colors.white),),
+              child: isImage ?
+              GestureDetector(
+                onTap: (){
+                  ImageShow().showMyImage(context, ses);},
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.network(ses),),
+              )
+
+                  :Text(ses,style: TextStyle(color: Colors.white),),
             ),
 
           ],
@@ -92,6 +102,14 @@ class Tiles{
         DatabaseMethods().createChatRoom(chatRoomId, chatRoomInfoMap)!;
         Navigator.push( context,MaterialPageRoute(builder: (context) => Chatting(username, name,0)) );
       },
+      onLongPress: (){
+        showDialog(context: context, builder: (context){
+          return AlertDialog(
+            title: Text("Name :  $name"),
+            content: Image.network(url,fit: BoxFit.cover,),
+          );
+        });
+      },
       child: Container(padding: EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
@@ -114,31 +132,32 @@ class ChatRoomListTile extends StatefulWidget {
 
   final String lastMessage , chatRoomId, myUserName ,sendBy ;
   final Timestamp time ;
- final  bool read ;
+ final  bool read  ;
   int count;
-
-  ChatRoomListTile(this.lastMessage, this.chatRoomId, this.myUserName, this.time, this.read, this.sendBy, this.count);
+bool show , isImage ;
+  ChatRoomListTile(this.lastMessage, this.chatRoomId, this.myUserName, this.time, this.read, this.sendBy, this.count, this.show ,this.isImage);
 
   @override
   _ChatRoomListTileState createState() => _ChatRoomListTileState();
+
 }
+
 
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
   String profilePicUrl = 'https://miro.medium.com/max/875/0*H3jZONKqRuAAeHnG.jpg' , name = ''  ;
   get  userName =>   widget.chatRoomId.replaceAll(widget.myUserName, "").replaceAll("_", "");
 
   String get newTime => DateFormat.jm().format(widget.time.toDate()) ;
-
- int counter = 0 ;
+   String get aes => MyEncryptionDecryption.decryptedAES(widget.lastMessage);
+ int? counter = 0 ;
   test<bool>(){
-    print("testing called");
    if(widget.sendBy == myUserName){
      return false;
    }
    else return true;
   }
  counterTest<bool>(){
-    if ("${widget.count- counter}" == "0"){
+    if ("${widget.count- counter!}" == "0"){
       return false;
     }else return true;
  }
@@ -160,20 +179,22 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                   return GestureDetector(
                     onTap: ()async{
                       counter = widget.count;
-
+                      SharedPreferenceHelper().saveCounter(counter!);
                        if (widget.read == false){
                                if(test() == true){
                          Map<String,dynamic>readMap = {'readStatus': true,};
                       FirebaseFirestore.instance.collection("chatrooms").doc(widget.chatRoomId).update(readMap); }}
+                       int counters = (await  SharedPreferenceHelper().getCounterNumber())!;
 
-                      Navigator.push(
+                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => Chatting(userName, ds["name"], counter)));
+                              builder: (context) => Chatting(userName, ds["name"], counters)));
+
                     },
                     child: Column(
                       children: [
-                        Container(color: Colors.white ,
+                        Container(color:  Colors.white ,
                           margin: EdgeInsets.symmetric(vertical: 8),
                           child: Row(
                             children: [
@@ -205,7 +226,16 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                                   SizedBox(width: screenWidth(context,dividedBy: 1.9),
                                       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(widget.lastMessage,overflow: TextOverflow.ellipsis),
+                                          widget.isImage?
+                                          Row(
+                                            children: [
+                                              Icon(Icons.photo),
+                                              SizedBox(width: 10,),
+                                              Text("Photo")
+                                            ],
+                                          )
+                                              :
+                                          Text(aes, overflow: TextOverflow.ellipsis),
 
                                         ],
                                       )),
@@ -213,19 +243,20 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                               ),
                               Column(
                                 children: [
-                                  Text(newTime,style: TextStyle(color: test()?
+                                  Text(newTime,style: TextStyle(color: widget.show?  test()?
                                   counterTest()?
-                                  Colors.green:  Colors.white    : Colors.white),),
+                                  Colors.lightBlue:  Colors.white    : Colors.white : Colors.white ),),
                                   SizedBox(height: 5,),
                                   Container(height: 20,width: 20,
                                     decoration: BoxDecoration(shape: BoxShape.circle,
-                                        color: test()? counterTest()?
-                                        Colors.green:  Colors.white    : Colors.white),
+                                        color: widget.show ? test()? counterTest()?
+                                        Colors.lightBlue:  Colors.white    : Colors.white : Colors.white),
                                     child: Center(
                                       child: Text(
+                                        widget.show ?
                                         test()?
                                         counterTest()?
-                                        '${widget.count-counter}':  ""     :""
+                                        '${widget.count-counter!}':  ""     :"" :''
                                         ,
 
                                         style: TextStyle(color: Colors.white,fontSize: 15),),
@@ -249,9 +280,9 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
   @override
   Widget build(BuildContext context) {
 
-
       if(widget.read == true){
         counter = widget.count;
+        SharedPreferenceHelper().saveCounter(counter!);
       }
 
 
@@ -264,4 +295,5 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
         child:  data(),
       );
   }
+
 }

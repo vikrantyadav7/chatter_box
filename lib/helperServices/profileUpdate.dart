@@ -29,11 +29,11 @@ class _SignUpPageState extends State<SignUpPage> {
   bool circular = false;
 String id = '' ;
 getKey()async{
-  print("key called");
+
   id = (await SharedPreferenceHelper().getUserId())!;
   myName = (await SharedPreferenceHelper().getDisplayName())!;
   myProfilePic = (await SharedPreferenceHelper().getUserProfileUrl())!;
-  print(" pic is $id");
+
 }
   showDialogBox(context)async{
     bool updateName = await

@@ -13,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
-
 class HomeScreen extends StatefulWidget {
   static const String id = 'Home';
 
@@ -22,6 +21,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMixin {
+
+
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('a new on message event was published ');
       RemoteNotification notification = message.notification!;
-      AndroidNotification? androidNotification = message.notification?.android;
+      // AndroidNotification? androidNotification = message.notification?.android;
     showDialog(context: context, builder: (_){
       return AlertDialog(
         title: Text(notification.title!),
