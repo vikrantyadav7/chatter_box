@@ -3,7 +3,10 @@ package models
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
+
+	"github.com/appleboy/go-fcm"
 )
 
 // implements the CRUD operations on Users in Bipp
@@ -42,6 +45,39 @@ func (client *DB) CreateUser(in *ChatterBoxUser) (out *ChatterBoxUser, err error
 		return
 	}
 
+	return
+}
+
+// CreateUser creates a user record in the peristent store of Bipp
+func (client *DB) sendMessage(in *ChatterBoxUser) (out *ChatterBoxUser, err error) {
+	fmt.Print("this send message was called")
+	fcmApiKey := "AIzaSyBxSafjVgcYR0pekArI2meAjdOd8Tq8RXw"
+	deviceToken := "dy3V64wvT8OvRqgkWEB8vN:APA91bHYOKrQvIi5jRQIjdiG0xuuRyhEOpNJ8hdalOOqOLIbqTjBETVEj203wiugqI9bX6JGjZKOaQhi9rmGb9RCMell0ZdZfn6TjEMjlEyA3Jv-_BW7xE0YUxGL2gJvxpayyfEIOOVa"
+	// Create the message to be sent.
+	msg := &fcm.Message{
+		To: deviceToken,
+		Data: map[string]interface{}{
+			"foo": "bar",
+		},
+		Notification: &fcm.Notification{
+			Title: "title",
+			Body:  "body",
+		},
+	}
+
+	// Create a FCM client to send the message.
+	cl, err := fcm.NewClient(fcmApiKey)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Send the message and receive the response without retries.
+	response, err := cl.Send(msg)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Printf("%#v\n", response)
 	return
 }
 

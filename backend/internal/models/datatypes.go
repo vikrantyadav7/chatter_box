@@ -200,11 +200,11 @@ type ChatterBoxUser struct {
 	LastSeenFrom string                 `json:"last_seen_from,omitempty"`
 }
 
-// ChatterBoxUserLite represents a lite version of the user entity in Bipp, between HTTP and DB layer
-type ChatterBoxUserLite struct {
-	ID          string `json:"id,omitempty"`
-	Email       string `json:"email,omitempty"`
-	DisplayName string `json:"display_name,omitempty"`
+type ChatterBoxUserMessage struct {
+	SenderEmail       string `json:"sender_email,omitempty"`
+	SenderPhoneNumber string `json:"sender_phone_number,omitempty"`
+	ReceiverEmail     string `json:"reveiver_email,omitempty"`
+	Message           string `json:"message"`
 }
 
 // LastLoginInfo represents a user's last login info

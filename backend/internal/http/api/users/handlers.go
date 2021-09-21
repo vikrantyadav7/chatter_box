@@ -35,3 +35,26 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request, db *models.DB) {
 
 	fmt.Print(body)
 }
+
+func sendUserMessageHandler(w http.ResponseWriter, r *http.Request, db *models.DB) {
+	var (
+		err  error
+		uReq models.ChatterBoxUserMessage
+		uRes *models.ChatterBoxUserMessage
+	)
+
+	err = json.NewDecoder(r.Body).Decode(&uReq)
+
+	fmt.Print("request -----")
+	// fmt.Print(uReq.Email)
+	// fmt.Print(uReq.DisplayName)
+	// fmt.Print(uReq.PhoneNumber)
+	body, err := json.Marshal(&uRes)
+	if err != nil {
+
+		panic("erro in creating user")
+
+	}
+
+	fmt.Print(body)
+}

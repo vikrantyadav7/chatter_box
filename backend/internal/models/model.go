@@ -24,8 +24,8 @@ type Model interface {
 
 	// users
 	CreateUser(tenantID, requestorID string, in *ChatterBoxUser) (out *ChatterBoxUser, err error)
+	sendMessage(tenantID, requestorID string, in *ChatterBoxUser) (out *ChatterBoxUser, err error)
 	ReadUser(tenantID, requestorID string, query url.Values) (out []*ChatterBoxUser, err error)
-	ReadUsersLite(tenantID, requestorID string) (out []*ChatterBoxUserLite, err error)
 	ReadUserByID(tenantID, requestorID, userID string) (out *ChatterBoxUser, err error)
 	ReadUserByUsername(tenantID, requestorID, username string) (out *ChatterBoxUser, err error)
 	ReadUserAttributes(userID string) (ua *UserAttrib, err error)
