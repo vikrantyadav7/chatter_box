@@ -11,26 +11,12 @@ class SharedPreferenceHelper {
   static String userProfilePicKey = "USERPROFILEKEY";
   static String userProfile = "USERPROFILEKEY" ;
   static String counterKey = "COUNTERKEY" ;
+  static String userToken = "USERTOKENKEY";
 
-  static String name = "" , profilePicUrl = "";
 
-  storeUsersInfo()async{
-    print('STORE CALLED');
-    QuerySnapshot querySnapshot = await DatabaseMethods().getUsers();
-    var length = querySnapshot.docs.length ;
-    int i = 0 ;
-    while (  i < length ) {
-      name = "${querySnapshot.docs[i]["name"]}";
-      profilePicUrl = "${querySnapshot.docs[i]["profileURL"]}";
-      String userName = "${querySnapshot.docs[i]['username']}";
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      sharedPreferences.setString("name$i" , name);
-      sharedPreferences.setString("profile$i" , profilePicUrl);
-      sharedPreferences.setString("username$i" , userName);
 
-      i++;
-    }
-  }
+
+
 
   //save data
   Future<bool> saveCounter(int counterNumber) async {
@@ -61,6 +47,11 @@ class SharedPreferenceHelper {
   Future<bool> saveUserProfileUrl(String getUserProfile) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(userProfilePicKey, getUserProfile);
+  }
+
+  Future<bool> saveUserToken(String getToken) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(userToken, getToken);
   }
 
   //get data
@@ -99,4 +90,8 @@ class SharedPreferenceHelper {
     return prefs.getInt(counterKey);
   }
 
+  Future<String?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(userToken);
+  }
 }

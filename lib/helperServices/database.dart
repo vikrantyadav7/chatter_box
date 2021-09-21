@@ -93,7 +93,15 @@ class DatabaseMethods{
    return await FirebaseFirestore.instance.collection('users').doc(uid).update(updateProfilePicMap);
 
   }
+  updateToken(String uid ,updateTokenMap )async{
+    return await FirebaseFirestore.instance.collection('users').doc(uid).update(updateTokenMap);
 
+  }
+  deleteData(String id )async{
+     await FirebaseFirestore.instance.collection("chatrooms").doc(id).delete();
+
+
+  }
 
 }
 

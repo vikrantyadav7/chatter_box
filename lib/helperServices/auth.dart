@@ -11,6 +11,7 @@ import 'database.dart';
 
 
 class AuthMethods   {
+
   final  FirebaseAuth auth = FirebaseAuth.instance;
 bool invalid = false;
   //get current user
@@ -67,7 +68,7 @@ bool invalid = false;
         'email':userDetails.email,
         'username':userDetails.email!.replaceAll('@gmail.com', ''),
         'name':userDetails.displayName,
-        'profileURL':userDetails.photoURL
+        'profileURL':userDetails.photoURL,
       };
 
 

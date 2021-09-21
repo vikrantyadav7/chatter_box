@@ -1,15 +1,14 @@
-
 import 'dart:io';
-
 import 'package:chatter_box/components/rounded_button.dart';
+import 'package:chatter_box/helperServices/Internet.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
 import 'package:chatter_box/helperServices/sharedprefenreces.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' ;
-
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:image_picker/image_picker.dart';
 
@@ -23,7 +22,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   firebase_auth.FirebaseAuth firebaseAuth = firebase_auth.FirebaseAuth.instance;
   TextEditingController _nameController = TextEditingController();
-
+ bool isInternet = false;
  String? url ;
  bool invalid = false;
   bool circular = false;
@@ -136,11 +135,58 @@ getKey()async{
         }));
 
   }
+  Future<bool> connectivityChecker() async {
+    var connected = false;
+    print("Checking internet...");
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      final result2 = await InternetAddress.lookup('facebook.com');
+      final result3 = await InternetAddress.lookup('microsoft.com');
+      if ((result.isNotEmpty && result[0].rawAddress.isNotEmpty) ||
+          (result2.isNotEmpty && result2[0].rawAddress.isNotEmpty) ||
+          (result3.isNotEmpty && result3[0].rawAddress.isNotEmpty)) {
+        print('connected..');
+        connected = true;
+        setState(() {
+          isInternet = true;
+        });
 
+
+      } else {
+        print("not connected from else..");
+        connected = false;
+
+        setState(() {
+          isInternet = false;
+        });
+
+      }
+    } on SocketException catch (_) {
+      print('not connected...');
+      connected = false;
+
+      setState(() {
+        isInternet = false;
+      });
+
+    }
+    return connected;
+  }
 
   @override
   void initState() {
   getKey();
+
+  var subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    // Got a new connectivity status!
+    connectivityChecker();
+  });
+// Be sure to cancel subscription after you are done
+    @override
+    dispose() {
+      super.dispose();
+      subscription.cancel();
+    }
     // TODO: implement initState
     super.initState();
   }
@@ -166,7 +212,9 @@ getKey()async{
                     } ,
                   child: ClipRRect(
                    borderRadius: BorderRadius.circular(120),
-                     child: Image.network(myProfilePic,width: 200,height: 200,fit:BoxFit.cover,)),
+                     child:     isInternet
+                    ?   Image.network(myProfilePic,width: 200,height: 200,fit:BoxFit.cover,)
+                         : Image.asset("images/noNet.jpg",width: 200,height: 200,fit: BoxFit.cover,)),
              ),
                   Container(
                     decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.blue),
@@ -219,7 +267,7 @@ getKey()async{
                                   Text(myName)
                                 ],
                               ),
-                              SizedBox(width: 150,),
+                              SizedBox(width: 50,),
 
                               Icon(Icons.edit,color: Colors.grey,)
                             ],
