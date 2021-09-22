@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"chatterbox.com/v/database"
-	"chatterbox.com/v/internal/http/api"
-	"chatterbox.com/v/internal/http/middleware"
 	"chatterbox.com/v/internal/models"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
@@ -17,7 +15,6 @@ import (
 	// "github.com/appleboy/go-fcm"
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/urfave/negroni"
 )
 
 type User struct {
@@ -33,63 +30,74 @@ type DbData struct {
 	Name string    `json:"name"`
 }
 
-func initRoutesWithMiddleware(db *models.DB) (n *negroni.Negroni) {
+// func initRoutesWithMiddleware(db *models.DB) (n *negroni.Negroni) {
 
-	fmt.Print(db)
-	router := mux.NewRouter().StrictSlash(true)
-	api.InitRouter(router, db)
+// 	fmt.Print(db)
+// 	router := mux.NewRouter().StrictSlash(true)
+// 	api.InitRouter(router, db)
 
-	n = negroni.New()
-	n.Use(&middleware.Logger{})
-	n.UseHandler(router)
+// 	n = negroni.New()
+// 	n.Use(&middleware.Logger{})
+// 	n.UseHandler(router)
 
-	return n
-}
+// 	return n
+// }
 
 func main() {
 
-	// ================
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/sendMessage", sendMessage)
+	log.Fatal(http.ListenAndServe(":8090", router))
 
-	config :=
-		database.Config{
-			ServerName: "localhost:3306",
-			User:       "root",
-			Password:   "12345678",
-			DB:         "chatterbox",
-		}
+	// config :=
+	// 	database.Config{
+	// 		ServerName: "localhost:3306",
+	// 		User:       "root",
+	// 		Password:   "12345678",
+	// 		DB:         "chatterbox",
+	// 	}
 
-	dbConStr := database.GetConnectionString(config)
-	var serverPort = "8090"
+	// dbConStr := database.GetConnectionString(config)
+	// var serverPort = "8090"
 	// bippCtx is a Context object which is passed around
-	var bippCtx = context.Background()
-	var err error
-	// connect to backend database
-	db := &models.DB{}
-	sendMessage()
-	db, err = models.NewDatabaseClient(bippCtx, dbConStr)
-	if err != nil {
-		panic(err)
-	}
-	handler := initRoutesWithMiddleware(db)
+	// var bippCtx = context.Background()
+	// var err error
+	// // connect to backend database
+	// // db := &models.DB{}
+	// // db, err = models.NewDatabaseClient(bippCtx, dbConStr)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// handler := initRoutesWithMiddleware(db)
 
-	var s *http.Server
+	// var s *http.Server
 
-	s = &http.Server{
-		Addr:    ":" + serverPort,
-		Handler: handler,
-	}
+	// s = &http.Server{
+	// 	Addr:    ":" + serverPort,
+	// 	Handler: handler,
+	// }
 
-	err = s.ListenAndServe()
-	if err != nil {
-		fmt.Printf("Failed to start bipp api server : %s", err.Error())
-	} else {
-		fmt.Print("server listening")
-	}
+	// err = s.ListenAndServe()
+	// if err != nil {
+	// 	fmt.Printf("Failed to start bipp api server : %s", err.Error())
+	// } else {
+	// 	fmt.Print("server listening")
+	// }
 
 }
 
-func sendMessage() {
-	// Initialize default app
+func sendMessage(w http.ResponseWriter, r *http.Request) {
+
+	var (
+		err  error
+		uReq models.ChatterBoxUserMessage
+	)
+	err = json.NewDecoder(r.Body).Decode(&uReq)
+	if err != nil {
+		panic("error in getting request data")
+
+	}
+
 	app, err := firebase.NewApp(context.Background(), nil)
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
@@ -103,22 +111,21 @@ func sendMessage() {
 	}
 
 	// This registration token comes from the client FCM SDKs.
-	registrationToken := "dy3V64wvT8OvRqgkWEB8vN:APA91bHYOKrQvIi5jRQIjdiG0xuuRyhEOpNJ8hdalOOqOLIbqTjBETVEj203wiugqI9bX6JGjZKOaQhi9rmGb9RCMell0ZdZfn6TjEMjlEyA3Jv-_BW7xE0YUxGL2gJvxpayyfEIOOVa"
+	registrationToken := uReq.DeviceID
 
-	// registrationTokens := []string{
-	// 	"eRdX1cYUSRSG3IoLsZZe3d:APA91bG8Iy_lKOtxourylaXCulE9ezgCNOa5EBV667ZirDw_oa3A5ZShIuak_kghFWdENlTKDn3tVOnSuoJsstSHcPvu9bQThx9-KHCfvtutjsKVtCDpQU_eIWf-yUxTiObwkUeopeGI",
-
-	// 	"dy3V64wvT8OvRqgkWEB8vN:APA91bHYOKrQvIi5jRQIjdiG0xuuRyhEOpNJ8hdalOOqOLIbqTjBETVEj203wiugqI9bX6JGjZKOaQhi9rmGb9RCMell0ZdZfn6TjEMjlEyA3Jv-_BW7xE0YUxGL2gJvxpayyfEIOOVa",
-	// }
 	message := &messaging.Message{
+		Notification: &messaging.Notification{
+			Title: uReq.Title,
+			Body:  uReq.NotificationBody,
+		},
 		Data: map[string]string{
-			"score": "850",
-			"time":  "2:45",
+			"username": uReq.Username,
+			"name":     uReq.Name,
+			"counter":  uReq.Counter,
 		},
 		Token: registrationToken,
 	}
 
-	fmt.Print(registrationToken)
 	// Send a message to the device corresponding to the provided
 	// registration token.
 	response, err := client.Send(ctx, message)

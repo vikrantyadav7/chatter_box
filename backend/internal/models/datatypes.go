@@ -201,11 +201,23 @@ type ChatterBoxUser struct {
 }
 
 type ChatterBoxUserMessage struct {
-	SenderEmail       string `json:"sender_email,omitempty"`
-	SenderPhoneNumber string `json:"sender_phone_number,omitempty"`
-	ReceiverEmail     string `json:"reveiver_email,omitempty"`
-	Message           string `json:"message"`
+	NotificationBody string `json:"notification_body,omitempty"`
+	Title            string `json:"notification_title,omitempty"`
+	Username         string `json:"username,omitempty"`
+	Name             string `json:"name,omitempty"`
+	Counter          string `json:"counter,omitempty"`
+	DeviceID         string `json:"device_id,omitempty"`
 }
+
+/**
+[11:16 AM, 9/22/2021] Vicky: notification.titile ,
+[11:17 AM, 9/22/2021] Vicky: notification.body
+[11:17 AM, 9/22/2021] Vicky: data.username
+[11:17 AM, 9/22/2021] Vicky: data.name
+[11:17 AM, 9/22/2021] Vicky: counter
+[11:17 AM, 9/22/2021] Vicky: deviceid
+
+*/
 
 // LastLoginInfo represents a user's last login info
 type LastLoginInfo struct {
