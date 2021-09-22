@@ -3,12 +3,15 @@ import 'package:chatter_box/components/imageShow.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/encryptionDecryption.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
+// import 'package:chatter_box/helperServices/notificationServices.dart';
 import 'package:chatter_box/helperServices/sharedprefenreces.dart';
+// import 'package:chatter_box/main.dart';
 import 'package:chatter_box/screens/chatting.dart' ;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 
 
@@ -136,7 +139,6 @@ class ChatRoomListTile extends StatefulWidget {
   int count;
 bool show , isImage ;
   ChatRoomListTile(this.lastMessage, this.chatRoomId, this.myUserName, this.time, this.read, this.sendBy, this.count, this.show ,this.isImage);
-
   @override
   _ChatRoomListTileState createState() => _ChatRoomListTileState();
 
@@ -144,6 +146,7 @@ bool show , isImage ;
 
 
 class _ChatRoomListTileState extends State<ChatRoomListTile> {
+
   String profilePicUrl = 'https://miro.medium.com/max/875/0*H3jZONKqRuAAeHnG.jpg' , name = ''  ;
   get  userName =>   widget.chatRoomId.replaceAll(widget.myUserName, "").replaceAll("_", "");
 
@@ -162,7 +165,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
     }else return true;
  }
 
-   data(){
+    data(){
     return StreamBuilder<QuerySnapshot>(
         stream:  FirebaseFirestore.instance
             .collection('users').where("username" , isEqualTo: userName )
@@ -192,6 +195,11 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                               builder: (context) => Chatting(userName, ds["name"], counters)));
 
                     },
+                    onDoubleTap: ()async{
+                     await DatabaseMethods().deleteData(widget.chatRoomId);
+                    },
+
+
                     child: Column(
                       children: [
                         Container(color:  Colors.white ,
@@ -235,7 +243,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
                                             ],
                                           )
                                               :
-                                          Text(aes, overflow: TextOverflow.ellipsis),
+                                          ClipRect(child: Text(aes,overflow: TextOverflow.ellipsis,)),
 
                                         ],
                                       )),
@@ -277,6 +285,7 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
         }) ;
   }
 
+
   @override
   Widget build(BuildContext context) {
 
@@ -284,7 +293,6 @@ class _ChatRoomListTileState extends State<ChatRoomListTile> {
         counter = widget.count;
         SharedPreferenceHelper().saveCounter(counter!);
       }
-
 
     return
 

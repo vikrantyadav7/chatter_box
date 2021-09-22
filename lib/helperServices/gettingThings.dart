@@ -1,4 +1,3 @@
-import 'package:chatter_box/components/rounded_button.dart';
 import 'package:chatter_box/components/tiles.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/encryptionDecryption.dart';
@@ -50,9 +49,11 @@ class GetThings{
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context,index){
                 DocumentSnapshot ds = snapshot.data!.docs[index];
-
                 return
-                ChatRoomListTile(ds['lastMessage'], ds.id, myUserName!,ds['lastMessageSendTs'] ,ds["readStatus"], ds["lastMessageSendBy"],ds["count"], ds["show"],ds["isImage"]);
+                  ChatRoomListTile(ds['lastMessage'], ds.id, myUserName!,ds['lastMessageSendTs'] ,ds["readStatus"], ds["lastMessageSendBy"],ds["count"], ds["show"],ds["isImage"]);
+
+
+
 
               }) : Center(child: CircularProgressIndicator());
         }) ;
@@ -130,7 +131,7 @@ String message = "";
 
       var lastMessageTs = DateTime.now();
 
-var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
+var pic = MyEncryptionDecryption.encryptAES(message);
 
 //messageId
       if (messageId == "") {
@@ -156,7 +157,7 @@ var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
           "readStatus" : false ,
           "count" : count,
           "show" : true,
-          "isImage": isImage
+          "isImage": isImage,
         };
 
         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
@@ -167,6 +168,8 @@ var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
           // make message id blank to get regenerated on next message send
           messageId = "";
         }
+       isImage ? messageId = "":  "" ;
+
       });
     }
   }
