@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

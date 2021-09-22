@@ -30,6 +30,11 @@ class DatabaseMethods{
    collection("chatrooms").
    doc(chatRoomId).collection('chats').doc(messageId).set(messageInfoMap);
  }
+  Future personInfo(String chatRoomId , String username,personInfoMap) async {
+    return await FirebaseFirestore.instance.
+    collection("chatrooms").
+    doc(chatRoomId).collection('information').doc(username).set(personInfoMap);
+  }
  updateLastMessageSend(String chatRoomId, lastMessageInfoMap){
    return FirebaseFirestore
        .instance.collection('chatrooms').doc(chatRoomId)
@@ -72,7 +77,7 @@ class DatabaseMethods{
 
   Future<QuerySnapshot> getUserInfo(String username) async {
     return await FirebaseFirestore.instance
-        .collection("users")
+        .collection("chatrooms")
         .where("username", isEqualTo: username)
         .get();
   }

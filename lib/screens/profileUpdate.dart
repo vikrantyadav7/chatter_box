@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:chatter_box/components/rounded_button.dart';
-import 'package:chatter_box/helperServices/Internet.dart';
+import 'package:chatter_box/helperServices/splashScreen.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
 import 'package:chatter_box/helperServices/sharedprefenreces.dart';
@@ -110,7 +110,7 @@ getKey()async{
       });
 
     setState(() {
-      updateName ? getKey() : null ;
+      updateName ? getKey() : "" ;
     });
   }
   File? _image;
@@ -176,7 +176,7 @@ getKey()async{
   @override
   void initState() {
   getKey();
-
+  connectivityChecker();
   var subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
     // Got a new connectivity status!
     connectivityChecker();
@@ -192,6 +192,7 @@ getKey()async{
   }
   @override
   Widget build(BuildContext context) {
+    // connectivityChecker();
     return Scaffold(
       appBar: AppBar(title: Text("Profile"),),
       body: SingleChildScrollView(

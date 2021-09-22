@@ -111,9 +111,14 @@ func sendMessage() {
 	// 	"dy3V64wvT8OvRqgkWEB8vN:APA91bHYOKrQvIi5jRQIjdiG0xuuRyhEOpNJ8hdalOOqOLIbqTjBETVEj203wiugqI9bX6JGjZKOaQhi9rmGb9RCMell0ZdZfn6TjEMjlEyA3Jv-_BW7xE0YUxGL2gJvxpayyfEIOOVa",
 	// }
 	message := &messaging.Message{
+		Notification: &messaging.Notification{
+			Title: "sushma ",
+			Body:  "hey!!!!!! ",
+		},
 		Data: map[string]string{
-			"score": "850",
-			"time":  "2:45",
+			"username": "+917988494950",
+			"name":     "sushma",
+			"counter":  "0",
 		},
 		Token: registrationToken,
 	}

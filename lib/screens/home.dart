@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:chatter_box/components/mainContainer.dart';
 import 'package:chatter_box/helperServices/auth.dart';
 import 'package:chatter_box/helperServices/database.dart';
 import 'package:chatter_box/helperServices/gettingThings.dart';
-import 'package:chatter_box/helperServices/profileUpdate.dart';
+import 'package:chatter_box/helperServices/push_notification.dart';
+import 'package:chatter_box/screens/chat_screen.dart';
+import 'package:chatter_box/screens/chatting.dart';
+import 'package:chatter_box/screens/profileUpdate.dart';
 import 'package:chatter_box/main.dart';
 import 'package:chatter_box/screens/welcome_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,6 +15,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 
 
 class HomeScreen extends StatefulWidget {
@@ -21,48 +27,80 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMixin {
+ bool isInternet = false;
+ Future<bool> connectivityChecker() async {
+   var connected = false;
+   print("Checking internet...");
+   try {
+     final result = await InternetAddress.lookup('google.com');
+     final result2 = await InternetAddress.lookup('facebook.com');
+     final result3 = await InternetAddress.lookup('microsoft.com');
+     if ((result.isNotEmpty && result[0].rawAddress.isNotEmpty) ||
+         (result2.isNotEmpty && result2[0].rawAddress.isNotEmpty) ||
+         (result3.isNotEmpty && result3[0].rawAddress.isNotEmpty)) {
+       print('connected..');
+       connected = true;
+          setState(() {
+            isInternet = true;
+      });
+
+
+     } else {
+       print("not connected from else..");
+       connected = false;
+
+       setState(() {
+         isInternet = false;
+       });
+
+     }
+   } on SocketException catch (_) {
+     print('not connected...');
+     connected = false;
+
+     setState(() {
+       isInternet = false;
+     });
+
+   }
+   return connected;
+ }
 
 
 
   @override
   void initState() {
     super.initState();
+    LocalNotificationService.initialize(context);
+    connectivityChecker();
+    var subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      // Got a new connectivity status!
+      connectivityChecker();
+    });
+// Be sure to cancel subscription after you are done
+  @override
+  dispose() {
+    super.dispose();
+    subscription.cancel();
+  }
+
+
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? androidNotification = message.notification?.android;
-    if(notification != null && androidNotification != null) {
-      flutterLocalNotificationsPlugin.show(
-          notification.hashCode, notification.title, notification.body,
-        NotificationDetails(
-           android: AndroidNotificationDetails(
-               channel.id,
-               channel.name,
-               channel.description,
-             color: Colors.blue,
-             playSound: true,
-             icon: "@mipmap/ic_launcher",
-           )
-        )
-      );
-    }
+
+      LocalNotificationService.display(message);
     }
     );
 
+
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('a new on message event was published ');
-      RemoteNotification notification = message.notification!;
-      // AndroidNotification? androidNotification = message.notification?.android;
-    showDialog(context: context, builder: (_){
-      return AlertDialog(
-        title: Text(notification.title!),
-        content: SingleChildScrollView(
-          child: Column(children: [
-            Text(notification.body!),
+      print(message.data["username"]);
+      print(message.data["name"]);
+      print(message.data["counter"]);
+      Navigator.push( context,MaterialPageRoute(builder: (context) => Chatting(message.data["username"], message.data["name"], int.parse(message.data["counter"]))) );
 
-          ],),
-        ),
-      );
-    });
+
 
     });
 
@@ -72,23 +110,12 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
     onScreenLoded();
   }
 
+
     Stream? userStream , chatRoomStream ,usersStream ;
   TextEditingController searchUsernameEditingController = TextEditingController();
   bool search = false;
 
-  void showNotification(){
-    flutterLocalNotificationsPlugin.show(
-        0, "testing", "how u doing",NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          channel.description,
-          color: Colors.blue,
-          playSound: true,
-          icon: "@mipmap/ic_launcher",
-        )
-    ) );
-  }
+
 
   onSearchButtonClick()async{
     isSearching = true;
@@ -103,14 +130,12 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
     });
   }
  Future getChatRooms() async{
-   print('Get cHAT ROOM HAS BEEN CALLED');
    return
       chatRoomStream  = await DatabaseMethods().getChatRooms();
 
    }
    onScreenLoded()async{
    getChatRooms();
-   print('SCREEEN LOADEED HAS BEEN CALEED ');
    }
 
    void choiceAction(String choice ){
@@ -134,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
 
 
      body:  Container(
-      decoration: BoxDecoration(image: DecorationImage(image: AssetImage('images/chart.jpg'),fit: BoxFit.fill)),
+      decoration:   BoxDecoration(image: DecorationImage(image: AssetImage('images/chart.jpg'),fit: BoxFit.fill)),
       height: screenHeight(context,dividedBy: 1),
 
       child: Column(
@@ -236,7 +261,12 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
                 ),
 
                 SizedBox(width: 250,height: 60,
-                    child: GetThings().usersList()),
+                    child:      isInternet
+                    ?GetThings().usersList():     Center(child: Text(
+                      "No internet connection....................."
+                      ,style: TextStyle(color: Colors.white),))      ),
+
+
               ],
             ),
           ),
@@ -245,7 +275,12 @@ class _HomeScreenState extends State<HomeScreen>with SingleTickerProviderStateMi
 
           Flexible(
             child: MainContainer(height:screenHeight(context,dividedBy: 1.3) ,
-                child: GetThings().chatRoomsLists() ))
+                child:        isInternet
+                ?  GetThings().chatRoomsLists() :
+                Container(
+                  height: 300,width: 300,
+                  child: Image.asset("images/noNet.jpg",fit: BoxFit.cover,),)
+            )),
 
 
 

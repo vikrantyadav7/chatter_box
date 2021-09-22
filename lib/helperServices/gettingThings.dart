@@ -131,7 +131,7 @@ String message = "";
 
       var lastMessageTs = DateTime.now();
 
-var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
+var pic = MyEncryptionDecryption.encryptAES(message);
 
 //messageId
       if (messageId == "") {
@@ -157,7 +157,7 @@ var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
           "readStatus" : false ,
           "count" : count,
           "show" : true,
-          "isImage": isImage
+          "isImage": isImage,
         };
 
         DatabaseMethods().updateLastMessageSend(chatRoomId, lastMessageInfoMap);
@@ -168,6 +168,8 @@ var pic = MyEncryptionDecryption.encryptAES(myProfilePic);
           // make message id blank to get regenerated on next message send
           messageId = "";
         }
+       isImage ? messageId = "":  "" ;
+
       });
     }
   }

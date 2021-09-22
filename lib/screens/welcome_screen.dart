@@ -46,7 +46,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
             RoundButton(title: 'Login with phoneNumber',colour: Colors.lightBlueAccent,
                 onPressed:(){
-                  Navigator.of(context).pop();
              Navigator.pushNamed(context, RegistrationScreen.id);}
             ),
             RoundButton(title: 'SignIn with google',colour: Colors.blue,
